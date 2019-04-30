@@ -1,25 +1,24 @@
-<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"%>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Calendar" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="java.util.Iterator" %>
-<%@ page import="org.archive.wayback.ResultURIConverter" %>
-<%@ page import="org.archive.wayback.WaybackConstants" %>
-<%@ page import="org.archive.wayback.core.CaptureSearchResult" %>
-<%@ page import="org.archive.wayback.core.CaptureSearchResults" %>
-<%@ page import="org.archive.wayback.core.UIResults" %>
-<%@ page import="org.archive.wayback.core.WaybackRequest" %>
-<%@ page import="org.archive.wayback.partition.BubbleCalendarData" %>
-<%@ page import="org.archive.wayback.util.Timestamp" %>
-<%@ page import="org.archive.wayback.util.partition.Partition" %>
-<%@ page import="org.archive.wayback.util.StringFormatter" %>
-<jsp:include page="/WEB-INF/template/CookieJS.jsp" flush="true" />
-
-<%
+<%@ page language="java" pageEncoding="utf-8" contentType="text/html;charset=utf-8"
+%><%@ page import="java.util.List"
+%><%@ page import="java.util.ArrayList"
+%><%@ page import="java.util.Calendar"
+%><%@ page import="java.util.Date"
+%><%@ page import="java.util.Iterator"
+%><%@ page import="org.archive.wayback.ResultURIConverter"
+%><%@ page import="org.archive.wayback.WaybackConstants"
+%><%@ page import="org.archive.wayback.core.CaptureSearchResult"
+%><%@ page import="org.archive.wayback.core.CaptureSearchResults"
+%><%@ page import="org.archive.wayback.core.UIResults"
+%><%@ page import="org.archive.wayback.core.WaybackRequest"
+%><%@ page import="org.archive.wayback.partition.BubbleCalendarData"
+%><%@ page import="org.archive.wayback.util.Timestamp"
+%><%@ page import="org.archive.wayback.util.partition.Partition"
+%><%@ page import="org.archive.wayback.util.StringFormatter"
+%><%
 UIResults results = UIResults.extractCaptureQuery(request);
 
 StringFormatter fmt = results.getWbRequest().getFormatter();
+
 ResultURIConverter uriConverter = results.getURIConverter();
 
 // deployment-specific URL prefixes
@@ -40,8 +39,7 @@ int yearWidth = 49;
 int monthWidth = 5;
 int startYear = Timestamp.getStartYear();
 
-for (int year = startYear; year <= Calendar.getInstance().get(Calendar.YEAR); year++)
-    imgWidth += yearWidth;
+imgWidth = yearWidth * (Calendar.getInstance().get(Calendar.YEAR) - startYear + 1);
 
 BubbleCalendarData data = new BubbleCalendarData(results);
 
@@ -51,15 +49,21 @@ String yearImgUrl = graphJspPrefix + "jsp/graph.jsp?nomonth=1&graphdata=" + year
 // a Calendar object for doing days-in-week, day-of-week,days-in-month math:
 Calendar cal = BubbleCalendarData.getUTCCalendar();
 
-%>
-<style type="text/css" src="<%= staticPrefix %>css/styles.css">
-@import url("<%= staticPrefix %>css/styles.css");
-</style>
+%><!doctype html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title><%= fmt.format("UIGlobal.pageTitle") %></title>
+<jsp:include page="/WEB-INF/template/CookieJS.jsp" flush="true" />
+<link rel="stylesheet" href="<%= staticPrefix %>css/styles.css" type="text/css"/>
+<link rel="stylesheet" href="<%= staticPrefix %>css/jquery.mCustomScrollbar.css" type="text/css" />
+
 <script type="text/javascript" src="<%= staticPrefix %>js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="<%= staticPrefix %>js/excanvas.compiled.js"></script>
 <script type="text/javascript" src="<%= staticPrefix %>js/jquery.bt.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="<%= staticPrefix %>js/jquery.hoverintent.min.js" charset="utf-8"></script>
 <script type="text/javascript" src="<%= staticPrefix %>js/graph-calc.js" ></script>
+<script src="<%= staticPrefix %>js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
 <!-- More ugly JS to manage the highlight over the graph -->
 <script type="text/javascript">
 
@@ -170,6 +174,7 @@ $().ready(function(){
     });
     $(".tooltip").bt({
         positions: ['top','right','left','bottom'],
+        trigger: ['focus mouseover', 'click'],
         contentSelector: "$(this).find('.pop').html()",
         padding: 0, 
         width: '130px',
@@ -186,7 +191,6 @@ $().ready(function(){
         shadowOffsetX: 0,
         shadowOffsetY: 0, 
         noShadowOpts: {strokeStyle:'#ccc'},
-        hoverIntentOpts: {interval:60,timeout:3500}, 
         clickAnywhereToClose: true,
         closeWhenOthersOpen: true,
         windowMargin: 30,
@@ -205,14 +209,15 @@ $().ready(function(){
     $("#wbChartThis").css("padding-left",yrPad+"px");
 });
 </script>
-
+</head>
+<body>
 <div id="position">
 
 
     <div id="wbSearch">
     
         <div id="logo">
-          <a href="<%= staticPrefix %>"><img src="<%= staticPrefix %>images/YorkULogo_Hor_rgb-bootstrap_transparent.png" alt="logo: OpenWayback" /></a>
+            <a href="<%= queryPrefix %>"><img src="<%= staticPrefix %>images/YorkULogo_Hor_rgb-bootstrap_transparent.png" alt="logo: OpenWayback" /></a>
         </div>
 
         <div id="form">
@@ -220,7 +225,7 @@ $().ready(function(){
             <form name="form1" method="get" action="<%= queryPrefix %>query">
 			<input type="hidden" name="<%= WaybackRequest.REQUEST_TYPE %>" value="<%= WaybackRequest.REQUEST_CAPTURE_QUERY %>">
                         <input type="text" name="<%= WaybackRequest.REQUEST_URL %>" value="<%= data.searchUrlForHTML %>" size="40" maxlength="256">
-            <input type="submit" name="Submit" value="Go Wayback!"/>
+            <input type="submit" name="Submit" value="<%= fmt.format("UIGlobal.urlSearchButton") %>"/>
             </form>
     
             <div id="wbMeta">
@@ -239,7 +244,7 @@ $().ready(function(){
     
     <div class="clearfix"></div>
 
-    <div id="wbChart" onmouseout="showTrackers('none'); setActiveYear(startYear);">
+    <div id="wbChart" onmouseout="showTrackers('none'); setActiveYear(startYear);" style="width: 963px; height: 118px;">
     
   <div id="wbChartThis">
         <a style="position:relative; white-space:nowrap; width:<%= imgWidth %>px;height:<%= imgHeight %>px;" href="<%= queryPrefix %>" id="wm-graph-anchor">
@@ -252,19 +257,13 @@ $().ready(function(){
 				width="<%= imgWidth %>"
 				height="<%= imgHeight %>"
 				border="0"
-				src="<%= yearImgUrl %>"></img>
+				src="<%= yearImgUrl %>"/>
 			<img id="wbMouseTrackYearImg" 
 				style="display:none; position:absolute; z-index:9010;"
 				width="<%= yearWidth %>" 
 				height="<%= imgHeight %>"
 				border="0"
-				src="<%= staticPrefix %>images/toolbar/yellow-pixel.png"></img>
-			<img id="wbMouseTrackMonthImg"
-				style="display:none; position:absolute; z-index:9011; " 
-				width="<%= monthWidth %>"
-				height="<%= imgHeight %>" 
-				border="0"
-				src="<%= staticPrefix %>images/toolbar/transp-black-pixel.png"></img>
+				src="<%= staticPrefix %>images/yellow-pixel.png"/>
         </div>
         </a>
         	<%
@@ -287,6 +286,34 @@ $().ready(function(){
             %>
   </div>
 </div>
+  
+<script>
+  
+    var x = sessionStorage.getItem("scrollbarX");
+    
+    (function($){
+        $("#wbChart").mCustomScrollbar({
+            axis: "x",
+            theme: "rounded-dots-dark",
+            autoExpandScrollbar: true,
+            scrollButtons: {enable: true},
+            keyboard: {enable: true},
+            documentTouchScroll: true,
+
+            callbacks:{
+                onUpdate:function(){
+                    $("#mCSB_1_container").css("left", x);
+                },
+                whileScrolling:function()
+                {
+                    leftAmount = $("#mCSB_1_container").css("left");
+                    sessionStorage.setItem("scrollbarX", leftAmount);
+                }
+            }
+        });
+    })(jQuery);
+</script>  
+
 <div class="clearfix"></div>
 
 <div id="wbCalendar">
@@ -420,7 +447,8 @@ for(int moy = 0; moy < 12; moy++) {
                         <div class="pop">
                             <h3><%= fmt.format("{0,date,MMMMM d, yyyy}",firstCaptureInDayDate) %></h3>
                             <p><%= count %> snapshots</p>
-                            <ul>
+                            <div style="overflow: auto; max-height: 50vh;">
+                                <ul>
 							<%
 							Iterator<CaptureSearchResult> dayItr = 
 								monthDays.get(dom).iterator();
@@ -434,7 +462,8 @@ for(int moy = 0; moy < 12; moy++) {
 								<%
 							}
 							%>
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
                         <div class="day">
 
@@ -480,4 +509,16 @@ for(int moy = 0; moy < 12; moy++) {
   </div>
 </div>
   
+<script>
+    var body = document.body;
+    var html = document.documentElement;
+    body.scrollTop = sessionStorage.getItem("top");
+
+    window.onscroll = function() {setTop()};
+
+    function setTop(){
+        sessionStorage.setItem("top", body.scrollTop);
+    }
+</script>
+    
 <jsp:include page="/WEB-INF/template/UI-footer.jsp" flush="true" />

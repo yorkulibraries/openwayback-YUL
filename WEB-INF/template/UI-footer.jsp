@@ -17,7 +17,7 @@ String replayPrefix = results.getReplayPrefix();
 				<a href="<%= staticPrefix %>">
 					<%= fmt.format("UIGlobal.homeLink") %>
 				</a> |
-				<a href="<%= staticPrefix %>help.jsp">
+				<a href="https://digital.library.yorku.ca/contact">
 					<%= fmt.format("UIGlobal.helpLink") %>
 				</a>
 			</p>
